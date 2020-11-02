@@ -1,0 +1,299 @@
+{
+	"info": {
+		"_postman_id": "437d3d76-467d-4080-9233-02abc3152de8",
+		"name": "Demo on JSON placeholder site",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Desire user",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9c91c365-be22-43fc-92cd-ed278976c6b8",
+						"exec": [
+							"pm.globals.set(\"random_id\", _.random(1, 100))"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "928eb502-21dd-4163-9c89-16148a9d4ac7",
+						"exec": [
+							"tests[\"Verify id\"] = responseBody.has(pm.globals.get(\"random_id\"));\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/posts/{{random_id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"posts",
+						"{{random_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b65d8a46-9da0-482d-971f-1b83bad75e2d",
+						"exec": [
+							"\r",
+							"bodyData = JSON.parse(responseBody)\r",
+							"first_id = bodyData[0].id\r",
+							"last_id = bodyData[99].id\r",
+							"tests[\"Verify First id\"]= first_id == 1\r",
+							"tests[\"Verify Last id\"] = last_id == 100\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/posts",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create New User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fd0f6fc9-df3d-405d-8eb1-0af205694421",
+						"exec": [
+							"bodyData = JSON.parse(responseBody)\r",
+							"value = bodyData.id - pm.globals.get(\"random_id\")\r",
+							"pm.globals.set(\"id\",value);\r",
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"tests[\"Verify id\"] = responseBody.has(101);\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"{{$randomWord}}\",\r\n    \"body\": \"{{$randomLoremSentence}}\",\r\n    \"userId\": {{$randomInt}}\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/posts",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"posts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user by put request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ddea806b-bb23-4124-b635-20533099e4cc",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"tests[\"Verify id\"] = responseBody.has(pm.globals.get(\"id\"));\r",
+							"tests[\"Verify that tile updated\"] = responseBody.has(pm.globals.get(\"Updated_title\"));\r",
+							"tests[\"Verify that body updated\"] = responseBody.has(pm.globals.get(\"Updated_body\"));\r",
+							"tests[\"Verify that UserID updated\"] = responseBody.has(pm.globals.get(\"Updated_uid\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "374806cc-feff-4a55-963b-2ca4b2975a02",
+						"exec": [
+							"pm.globals.set('Updated_title', pm.variables.replaceIn('{{$randomWord}}'))\r",
+							"pm.globals.set('Updated_body', pm.variables.replaceIn('{{$randomLoremSentence}}'))\r",
+							"pm.globals.set('Updated_uid', pm.variables.replaceIn('{{$randomInt}}'))\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": {{id}},\r\n    \"title\": \"{{Updated_title}}\",\r\n    \"body\": \"{{Updated_body}}\",\r\n    \"userId\": {{Updated_uid}}\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/posts/{{id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"posts",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user by patch request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "30086705-1288-4458-95e5-7bb4987e5c2b",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"tests[\"Verify id\"] = responseBody.has(pm.globals.get(\"id\"));\r",
+							"tests[\"Verify that tile updated\"] = responseBody.has(pm.globals.get(\"Updated_patch_title\"));"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "4c3874c9-41d1-4ff8-8355-aa7833b0b8e1",
+						"exec": [
+							"pm.globals.set('Updated_patch_title', pm.variables.replaceIn('{{$randomWord}}'))"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"{{Updated_patch_title}}\"\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/posts/{{id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"posts",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "da2b1d84-e0ca-42dc-a8dc-c85dc94b24a1",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/posts/{{id}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"posts",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"id": "2a82fadc-212f-4dc6-bd56-6f7e4e4c9248",
+			"key": "url",
+			"value": "https://jsonplaceholder.typicode.com"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
